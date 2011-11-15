@@ -294,7 +294,7 @@ public class EclipseHandlerUtil {
 		if (annotation instanceof NormalAnnotation) {
 			NormalAnnotation ann = new NormalAnnotation(copyType(annotation.type, source), pS);
 			setGeneratedBy(ann, source);
-			ann.declarationSourceEnd = ann.statementEnd = ann.sourceEnd = pE;
+			ann.declarationSourceEnd = ann.sourceEnd = ann.statementEnd = pE;
 			ann.memberValuePairs = ((NormalAnnotation)annotation).memberValuePairs;
 			return ann;
 		}
@@ -421,7 +421,7 @@ public class EclipseHandlerUtil {
 			
 			Wildcard wildcard = new Wildcard(original.kind);
 			wildcard.sourceStart = original.sourceStart;
-			wildcard.sourceEnd = original.sourceEnd;
+			wildcard.sourceEnd = wildcard.statementEnd = original.sourceEnd;
 			if (original.bound != null) wildcard.bound = copyType(original.bound, source);
 			setGeneratedBy(wildcard, source);
 			return wildcard;
@@ -539,7 +539,7 @@ public class EclipseHandlerUtil {
 				Wildcard out = new Wildcard(Wildcard.UNBOUND);
 				setGeneratedBy(out, pos);
 				out.sourceStart = pos.sourceStart;
-				out.sourceEnd = pos.sourceEnd;
+				out.sourceEnd = out.statementEnd = pos.sourceEnd;
 				return out;
 			}
 		}
@@ -554,7 +554,7 @@ public class EclipseHandlerUtil {
 					setGeneratedBy(out, pos);
 					out.bound = makeType(wildcard.bound, pos, false);
 					out.sourceStart = pos.sourceStart;
-					out.sourceEnd = pos.sourceEnd;
+					out.sourceEnd = out.statementEnd = pos.sourceEnd;
 					return out;
 				}
 			} else if (allowCompound && wildcard.boundKind == Wildcard.SUPER) {
@@ -562,7 +562,7 @@ public class EclipseHandlerUtil {
 				setGeneratedBy(out, pos);
 				out.bound = makeType(wildcard.bound, pos, false);
 				out.sourceStart = pos.sourceStart;
-				out.sourceEnd = pos.sourceEnd;
+				out.sourceEnd = out.statementEnd = pos.sourceEnd;
 				return out;
 			} else {
 				TypeReference result = new QualifiedTypeReference(TypeConstants.JAVA_LANG_OBJECT, poss(pos, 3));
@@ -848,7 +848,7 @@ public class EclipseHandlerUtil {
 		
 		MessageSend call = new MessageSend();
 		setGeneratedBy(call, source);
-		call.sourceStart = pS; call.sourceEnd = pE;
+		call.sourceStart = pS; call.sourceEnd = call.statementEnd = pE;
 		call.receiver = new ThisReference(pS, pE);
 		setGeneratedBy(call.receiver, source);
 		call.selector = getter.name;
@@ -878,7 +878,7 @@ public class EclipseHandlerUtil {
 		
 		MessageSend call = new MessageSend();
 		setGeneratedBy(call, source);
-		call.sourceStart = pS; call.sourceEnd = pE;
+		call.sourceStart = pS; call.sourceEnd = call.statementEnd = pE;
 		call.receiver = new SingleNameReference(receiver, p);
 		setGeneratedBy(call.receiver, source);
 		call.selector = getter.name;
@@ -1136,7 +1136,7 @@ public class EclipseHandlerUtil {
 		NullLiteral nullLiteral = new NullLiteral(pS, pE);
 		setGeneratedBy(nullLiteral, source);
 		EqualExpression equalExpression = new EqualExpression(varName, nullLiteral, OperatorIds.EQUAL_EQUAL);
-		equalExpression.sourceStart = pS; equalExpression.sourceEnd = pE;
+		equalExpression.sourceStart = pS; equalExpression.sourceEnd = equalExpression.statementEnd = pE;
 		setGeneratedBy(equalExpression, source);
 		IfStatement ifStatement = new IfStatement(equalExpression, throwStatement, 0, 0);
 		setGeneratedBy(ifStatement, source);
@@ -1204,7 +1204,7 @@ public class EclipseHandlerUtil {
 					castToConverted = new SingleNameReference(str.token, 0);
 					castToConverted.bits = (castToConverted.bits & ~Binding.VARIABLE) | Binding.TYPE;
 					castToConverted.sourceStart = str.sourceStart;
-					castToConverted.sourceEnd = str.sourceEnd;
+					castToConverted.sourceEnd = castToConverted.statementEnd = str.sourceEnd;
 					setGeneratedBy(castToConverted, source);
 				} else if (castTo.getClass() == QualifiedTypeReference.class) {
 					QualifiedTypeReference qtr = (QualifiedTypeReference) castTo;
@@ -1225,7 +1225,7 @@ public class EclipseHandlerUtil {
 		}
 		
 		result.sourceStart = source.sourceStart;
-		result.sourceEnd = source.sourceEnd;
+		result.sourceEnd = result.statementEnd = source.sourceEnd;
 		
 		setGeneratedBy(result, source);
 		return result;

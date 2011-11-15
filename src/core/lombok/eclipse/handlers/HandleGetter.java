@@ -305,12 +305,12 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 			TypeReference[][] typeParams = AR_PARAMS.clone();
 			typeParams[4] = new TypeReference[] {copyType(componentType, source)};
 			valueDecl.type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
-			valueDecl.type.sourceStart = pS; valueDecl.type.sourceEnd = pE;
+			valueDecl.type.sourceStart = pS; valueDecl.type.sourceEnd = valueDecl.type.statementEnd = pE;
 			setGeneratedBy(valueDecl.type, source);
 			
 			MessageSend getter = new MessageSend();
 			setGeneratedBy(getter, source);
-			getter.sourceStart = pS; getter.sourceEnd = pE;
+			getter.sourceStart = pS; getter.sourceEnd = getter.statementEnd = pE;
 			getter.selector = new char[] {'g', 'e', 't'};
 			getter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
 			
@@ -345,10 +345,11 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 			/* value = this.fieldName.get(); */ {
 				MessageSend getter = new MessageSend();
 				setGeneratedBy(getter, source);
-				getter.sourceStart = pS; getter.sourceEnd = pE;
+				getter.sourceStart = pS; getter.sourceEnd = getter.statementEnd = pE;
 				getter.selector = new char[] {'g', 'e', 't'};
 				getter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
 				Assignment assign = new Assignment(new SingleNameReference(valueName, p), getter, pE);
+				assign.statementEnd = assign.sourceEnd;
 				setGeneratedBy(assign, source);
 				setGeneratedBy(assign.lhs, source);
 				inner.statements[0] = assign;
@@ -366,14 +367,16 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 				/*value = new java.util.concurrent.atomic.AtomicReference<ValueType>(new ValueType()); */ {
 					AllocationExpression create = new AllocationExpression();
 					setGeneratedBy(create, source);
-					create.sourceStart = pS; create.sourceEnd = pE;
+					create.sourceStart = pS; create.sourceEnd = create.statementEnd = pE;
 					TypeReference[][] typeParams = AR_PARAMS.clone();
 					typeParams[4] = new TypeReference[] {copyType(componentType, source)};
 					create.type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
-					create.type.sourceStart = pS; create.type.sourceEnd = pE;
+					create.type.sourceStart = pS; create.type.sourceEnd = create.type.statementEnd = pE;
 					setGeneratedBy(create.type, source);
 					create.arguments = new Expression[] {field.initialization};
 					Assignment innerAssign = new Assignment(new SingleNameReference(valueName, p), create, pE);
+					innerAssign.statementEnd = innerAssign.sourceEnd;
+
 					setGeneratedBy(innerAssign, source);
 					setGeneratedBy(innerAssign.lhs, source);
 					innerThen.statements[0] = innerAssign;
@@ -382,7 +385,7 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 				/*this.fieldName.set(value);*/ {
 					MessageSend setter = new MessageSend();
 					setGeneratedBy(setter, source);
-					setter.sourceStart = pS; setter.sourceEnd = pE;
+					setter.sourceStart = pS; setter.sourceEnd = setter.statementEnd = pE;
 					setter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
 					setter.selector = new char[] { 's', 'e', 't' };
 					setter.arguments = new Expression[] {
@@ -408,7 +411,7 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 		/* return value.get(); */ {
 			MessageSend getter = new MessageSend();
 			setGeneratedBy(getter, source);
-			getter.sourceStart = pS; getter.sourceEnd = pE;
+			getter.sourceStart = pS; getter.sourceEnd = getter.statementEnd = pE;
 			getter.selector = new char[] {'g', 'e', 't'};
 			getter.receiver = new SingleNameReference(valueName, p);
 			setGeneratedBy(getter.receiver, source);
@@ -429,13 +432,13 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 			typeParams[4] = new TypeReference[] {copyType(innerType, source)};
 			TypeReference type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
 			// Some magic here
-			type.sourceStart = -1; type.sourceEnd = -2;
+			type.sourceStart = -1; type.sourceEnd = type.statementEnd = -2;
 			setGeneratedBy(type, source);
 			
 			field.type = type;
 			AllocationExpression init = new AllocationExpression();
 			// Some magic here
-			init.sourceStart = field.initialization.sourceStart; init.sourceEnd = field.initialization.sourceEnd;
+			init.sourceStart = field.initialization.sourceStart; init.sourceEnd = init.statementEnd = field.initialization.sourceEnd;
 			init.type = copyType(type, source);
 			field.initialization = init;
 		}
