@@ -84,6 +84,7 @@ public class EclipsePatcher extends Agent {
 			patchCatchReparse(sm);
 			patchIdentifierEndReparse(sm);
 			patchRetrieveEllipsisStartPosition(sm);
+			patchSetJumpToLocation(sm);
 			patchRetrieveRightBraceOrSemiColonPosition(sm);
 			patchSetGeneratedFlag(sm);
 			patchDomAstReparseIssues(sm);
@@ -129,6 +130,49 @@ public class EclipsePatcher extends Agent {
 				.build());
 	}
 	
+	private static void patchSetJumpToLocation(ScriptManager sm) {
+		sm.addScript(ScriptBuilder.addField()
+				.targetClass("org.eclipse.jdt.internal.core.AnnotatableInfo")
+				.fieldName("$jumpToRange")
+				.fieldType("Lorg/eclipse/jdt/core/SourceRange;")
+				.setPublic().setTransient().build());
+		
+		String SIG_CUSR = "org.eclipse.jdt.internal.core.CompilationUnitStructureRequestor";
+		sm.addScript(ScriptBuilder.wrapReturnValue()
+			.target(new MethodTarget(SIG_CUSR, "createMethodInfo", "org.eclipse.jdt.internal.core.SourceMethodElementInfo", "org.eclipse.jdt.internal.compiler.ISourceElementRequestor$MethodInfo", "org.eclipse.jdt.internal.core.SourceMethod"))
+			.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "fixSetJumpToLocationMethod", "org.eclipse.jdt.internal.core.SourceMethodElementInfo", "org.eclipse.jdt.internal.core.SourceMethodElementInfo", "org.eclipse.jdt.internal.compiler.ISourceElementRequestor$MethodInfo"))
+			.request(StackRequest.RETURN_VALUE, StackRequest.PARAM1)
+			.build());
+
+		sm.addScript(ScriptBuilder.wrapReturnValue()
+			.target(new MethodTarget(SIG_CUSR, "createTypeInfo", "org.eclipse.jdt.internal.core.SourceTypeElementInfo", "org.eclipse.jdt.internal.compiler.ISourceElementRequestor$TypeInfo", "org.eclipse.jdt.internal.core.SourceType"))
+			.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "fixSetJumpToLocationType", "org.eclipse.jdt.internal.core.SourceTypeElementInfo", "org.eclipse.jdt.internal.core.SourceTypeElementInfo", "org.eclipse.jdt.internal.compiler.ISourceElementRequestor$TypeInfo"))
+			.request(StackRequest.RETURN_VALUE, StackRequest.PARAM1)
+			.build());
+
+		sm.addScript(ScriptBuilder.wrapMethodCall()
+			.target(new MethodTarget(SIG_CUSR, "exitField", "void", "int", "int", "int"))
+			.methodToWrap(new Hook("org.eclipse.jdt.internal.core.SourceFieldElementInfo", "<init>", "void"))
+			.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "fixSetJumpToLocationField", "org.eclipse.jdt.internal.core.SourceFieldElementInfo", "org.eclipse.jdt.internal.core.SourceFieldElementInfo", SIG_CUSR))
+			.transplant().requestExtra(StackRequest.THIS)
+			.build());
+
+		sm.addScript(ScriptBuilder.wrapMethodCall()
+				.target(new MethodTarget("org.eclipse.jdt.internal.ui.javaeditor.JavaEditor", "setSelection", "void", "org.eclipse.jdt.core.ISourceReference", "boolean"))
+				.methodToWrap(new Hook("org.eclipse.jdt.core.ISourceReference", "getSourceRange", "org.eclipse.jdt.core.ISourceRange"))
+				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "fixJavaEditorSetSelection", "org.eclipse.jdt.core.ISourceRange", "org.eclipse.jdt.core.ISourceRange", "org.eclipse.jdt.core.ISourceReference"))
+				.requestExtra(StackRequest.PARAM1)
+				.build());
+
+		sm.addScript(ScriptBuilder.wrapMethodCall()
+				.target(new MethodTarget("org.eclipse.jdt.internal.ui.javaeditor.JavaEditor", "setSelection", "void", "org.eclipse.jdt.core.ISourceReference", "boolean"))
+				.methodToWrap(new Hook("org.eclipse.jdt.core.ISourceReference", "getNameRange", "org.eclipse.jdt.core.ISourceRange"))
+				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "fixJavaEditorSetSelection", "org.eclipse.jdt.core.ISourceRange", "org.eclipse.jdt.core.ISourceRange", "org.eclipse.jdt.core.ISourceReference"))
+				.requestExtra(StackRequest.PARAM1)
+				.build());
+
+	}
+
 	private static void patchDomAstReparseIssues(ScriptManager sm) {
 		sm.addScript(ScriptBuilder.replaceMethodCall()
 				.target(new MethodTarget("org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer", "visit"))

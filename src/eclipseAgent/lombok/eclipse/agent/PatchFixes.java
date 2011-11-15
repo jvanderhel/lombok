@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import lombok.core.DiagnosticsReceiver;
 import lombok.core.PostCompiler;
@@ -37,6 +38,7 @@ import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEvent;
@@ -53,6 +55,51 @@ public class PatchFixes {
 		return result;
 	}
 
+	public static org.eclipse.jdt.core.ISourceRange fixJavaEditorSetSelection(org.eclipse.jdt.core.ISourceRange original, org.eclipse.jdt.core.ISourceReference reference) throws org.eclipse.jdt.core.JavaModelException {
+		if (reference instanceof org.eclipse.jdt.internal.core.SourceRefElement) {
+			Object elementInfo = ((org.eclipse.jdt.internal.core.SourceRefElement) reference).getElementInfo();
+			if (elementInfo instanceof org.eclipse.jdt.internal.core.AnnotatableInfo) {
+				try {
+					org.eclipse.jdt.core.SourceRange range = (org.eclipse.jdt.core.SourceRange)elementInfo.getClass().getField("$jumpToRange").get(elementInfo);
+					if (range != null)
+						return range;
+				} catch (Exception e) {
+					// return original
+				}
+			}
+		}
+		return original;
+	}
+
+	public static org.eclipse.jdt.internal.core.SourceMethodElementInfo fixSetJumpToLocationMethod(org.eclipse.jdt.internal.core.SourceMethodElementInfo info, org.eclipse.jdt.internal.compiler.ISourceElementRequestor.MethodInfo internalInfo) throws Exception {
+		Object generatedBy = internalInfo.node.getClass().getField("$generatedBy").get(internalInfo.node);
+		if (generatedBy != null) {
+			ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode)generatedBy;
+			info.getClass().getField("$jumpToRange").set(info, new org.eclipse.jdt.core.SourceRange(node.sourceStart, node.sourceEnd-node.sourceStart+1));
+		}
+		return info;
+	}
+
+	public static org.eclipse.jdt.internal.core.SourceTypeElementInfo fixSetJumpToLocationType(org.eclipse.jdt.internal.core.SourceTypeElementInfo info, org.eclipse.jdt.internal.compiler.ISourceElementRequestor.TypeInfo internalInfo) throws Exception {
+		Object generatedBy = internalInfo.node.getClass().getField("$generatedBy").get(internalInfo.node);
+		if (generatedBy != null) {
+			ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode)generatedBy;
+			info.getClass().getField("$jumpToRange").set(info, new org.eclipse.jdt.core.SourceRange(node.sourceStart, node.sourceEnd-node.sourceStart+1));
+		}
+		return info;
+	}
+
+	public static org.eclipse.jdt.internal.core.SourceFieldElementInfo fixSetJumpToLocationField(org.eclipse.jdt.internal.core.SourceFieldElementInfo info, org.eclipse.jdt.internal.core.CompilationUnitStructureRequestor requestor) throws Exception {
+		Stack<?> stack = (Stack<?>)requestor.getClass().getDeclaredField("infoStack").get(requestor);
+		org.eclipse.jdt.internal.compiler.ISourceElementRequestor.FieldInfo internalInfo = (org.eclipse.jdt.internal.compiler.ISourceElementRequestor.FieldInfo)stack.peek();
+		Object generatedBy = internalInfo.node.getClass().getField("$generatedBy").get(internalInfo.node);
+		if (generatedBy != null) {
+			ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode)generatedBy;
+			info.getClass().getField("$jumpToRange").set(info, new org.eclipse.jdt.core.SourceRange(node.sourceStart, node.sourceEnd-node.sourceStart+1));
+		}
+		return info;
+	}
+	
 	public static int fixRetrieveStartingCatchPosition(int original, int start) {
 		return original == -1 ? start : original;
 	}
