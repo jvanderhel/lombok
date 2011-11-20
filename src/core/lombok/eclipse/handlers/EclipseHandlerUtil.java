@@ -234,6 +234,8 @@ public class EclipseHandlerUtil {
 	}
 	
 	public static ASTNode setGeneratedBy(ASTNode node, ASTNode source) {
+		node.bits |= ECLIPSE_DO_NOT_TOUCH_FLAG;
+
 		if (generatedByField != null) {
 			try {
 				generatedByField.set(node, source);
@@ -1044,7 +1046,7 @@ public class EclipseHandlerUtil {
 	 * Inserts a method into an existing type. The type must represent a {@code TypeDeclaration}.
 	 */
 	public static void injectMethod(EclipseNode type, AbstractMethodDeclaration method) {
-		method.annotations = createSuppressWarningsAll(method, method.annotations);
+//		method.annotations = createSuppressWarningsAll(method, method.annotations);
 		TypeDeclaration parent = (TypeDeclaration) type.get();
 		
 		if (parent.methods == null) {

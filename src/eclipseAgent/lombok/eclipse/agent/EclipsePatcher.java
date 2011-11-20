@@ -131,12 +131,52 @@ public class EclipsePatcher extends Agent {
 	}
 	
 	private static void patchSetJumpToLocation(ScriptManager sm) {
+		/*
+		 *	Skip generated nodes for "visual effects" (syntax highlighting && highlight occurences)
+		 */
+		sm.addScript(ScriptBuilder.exitEarly()
+				.target(new MethodTarget("org.eclipse.jdt.internal.ui.search.OccurrencesFinder", "addUsage"))
+				.target(new MethodTarget("org.eclipse.jdt.internal.ui.search.OccurrencesFinder", "addWrite"))
+				.target(new MethodTarget("org.eclipse.jdt.internal.ui.javaeditor.SemanticHighlightingReconciler$PositionCollector", "visit", "boolean", "org.eclipse.jdt.core.dom.SimpleName"))
+				.decisionMethod(new Hook("lombok.eclipse.agent.PatchFixes", "isGenerated", "boolean", "org.eclipse.jdt.core.dom.ASTNode"))
+				.valueMethod(new Hook("lombok.eclipse.agent.PatchFixes", "returnFalse", "boolean", "java.lang.Object"))
+				.request(StackRequest.PARAM1)
+				.build());
+
+		sm.addScript(ScriptBuilder.wrapMethodCall()
+				.target(new MethodTarget("org.eclipse.text.edits.TextEditProcessor","checkIntegrityDo"))
+				.methodToWrap(new Hook("org.eclipse.jface.text.IDocument","getLength", "int"))
+				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "increaseSourceLength", "int", "int"))
+				.transplant().build());
+
+		/*
+		 *	Increase sourceLength so we'll stay in range, we reserve 10000 characters for generated methods
+		 *	10000 is an arbitrary number, which might need some adjustment
+		 */
+		sm.addScript(ScriptBuilder.wrapReturnValue()
+				.target(new MethodTarget("org.eclipse.jdt.internal.core.Buffer", "getCharacters"))
+				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "increaseSourceLength", "char[]", "char[]"))
+				.request(StackRequest.RETURN_VALUE)
+				.transplant().build());
+		
+		sm.addScript(ScriptBuilder.wrapReturnValue()
+				.target(new MethodTarget("org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter", "getContents"))
+				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "increaseSourceLength", "java.lang.String", "java.lang.String"))
+				.request(StackRequest.RETURN_VALUE)
+				.transplant().build());
+		
+		/*
+		 * Add field to store the location of the annotation to jump to
+		 */
 		sm.addScript(ScriptBuilder.addField()
 				.targetClass("org.eclipse.jdt.internal.core.AnnotatableInfo")
 				.fieldName("$jumpToRange")
 				.fieldType("Lorg/eclipse/jdt/core/SourceRange;")
 				.setPublic().setTransient().build());
-		
+	
+		/*
+		 * Make sure the AnnotatableInfo.$jumpToRange are filled when needed
+		 */
 		String SIG_CUSR = "org.eclipse.jdt.internal.core.CompilationUnitStructureRequestor";
 		sm.addScript(ScriptBuilder.wrapReturnValue()
 			.target(new MethodTarget(SIG_CUSR, "createMethodInfo", "org.eclipse.jdt.internal.core.SourceMethodElementInfo", "org.eclipse.jdt.internal.compiler.ISourceElementRequestor$MethodInfo", "org.eclipse.jdt.internal.core.SourceMethod"))
@@ -157,6 +197,9 @@ public class EclipsePatcher extends Agent {
 			.transplant().requestExtra(StackRequest.THIS)
 			.build());
 
+		/*
+		 * Make sure the AnnotatableInfo.$jumpToRange is used when jumping to a generated method
+		 */
 		sm.addScript(ScriptBuilder.wrapMethodCall()
 				.target(new MethodTarget("org.eclipse.jdt.internal.ui.javaeditor.JavaEditor", "setSelection", "void", "org.eclipse.jdt.core.ISourceReference", "boolean"))
 				.methodToWrap(new Hook("org.eclipse.jdt.core.ISourceReference", "getSourceRange", "org.eclipse.jdt.core.ISourceRange"))

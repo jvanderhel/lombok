@@ -31,50 +31,45 @@ import java.util.Map;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.core.AST.Kind;
 import lombok.core.AnnotationValues;
 import lombok.core.TransformationsUtil;
-import lombok.core.AST.Kind;
 import lombok.eclipse.EclipseAnnotationHandler;
 import lombok.eclipse.EclipseNode;
 
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Assignment;
-import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
-import org.eclipse.jdt.internal.compiler.ast.Block;
-import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.IfStatement;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
-import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Statement;
-import org.eclipse.jdt.internal.compiler.ast.SynchronizedStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.mangosdk.spi.ProviderFor;
 
 /**
  * Handles the {@code lombok.Getter} annotation for eclipse.
  */
-@ProviderFor(EclipseAnnotationHandler.class)
-public class HandleGetter extends EclipseAnnotationHandler<Getter> {
+@ProviderFor(EclipseAnnotationHandler.class) public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 	public boolean generateGetterForType(EclipseNode typeNode, EclipseNode pos, AccessLevel level, boolean checkForTypeLevelGetter) {
 		if (checkForTypeLevelGetter) {
 			if (typeNode != null) for (EclipseNode child : typeNode.down()) {
 				if (child.getKind() == Kind.ANNOTATION) {
 					if (annotationTypeMatches(Getter.class, child)) {
-						//The annotation will make it happen, so we can skip it.
+						// The annotation will make it happen, so we can skip
+						// it.
 						return true;
 					}
 				}
@@ -84,8 +79,7 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 		TypeDeclaration typeDecl = null;
 		if (typeNode.get() instanceof TypeDeclaration) typeDecl = (TypeDeclaration) typeNode.get();
 		int modifiers = typeDecl == null ? 0 : typeDecl.modifiers;
-		boolean notAClass = (modifiers &
-				(ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation)) != 0;
+		boolean notAClass = (modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation)) != 0;
 		
 		if (typeDecl == null || notAClass) {
 			pos.addError("@Getter is only supported on a class, an enum, or a field.");
@@ -111,16 +105,17 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 	 * 
 	 * The difference between this call and the handle method is as follows:
 	 * 
-	 * If there is a {@code lombok.Getter} annotation on the field, it is used and the
-	 * same rules apply (e.g. warning if the method already exists, stated access level applies).
-	 * If not, the getter is still generated if it isn't already there, though there will not
-	 * be a warning if its already there. The default access level is used.
+	 * If there is a {@code lombok.Getter} annotation on the field, it is used
+	 * and the same rules apply (e.g. warning if the method already exists,
+	 * stated access level applies). If not, the getter is still generated if it
+	 * isn't already there, though there will not be a warning if its already
+	 * there. The default access level is used.
 	 */
 	public void generateGetterForField(EclipseNode fieldNode, ASTNode pos, AccessLevel level, boolean lazy) {
 		for (EclipseNode child : fieldNode.down()) {
 			if (child.getKind() == Kind.ANNOTATION) {
 				if (annotationTypeMatches(Getter.class, child)) {
-					//The annotation will make it happen, so we can skip it.
+					// The annotation will make it happen, so we can skip it.
 					return;
 				}
 			}
@@ -160,8 +155,7 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 		}
 	}
 	
-	private void createGetterForField(AccessLevel level,
-			EclipseNode fieldNode, EclipseNode errorNode, ASTNode source, boolean whineIfExists, boolean lazy) {
+	private void createGetterForField(AccessLevel level, EclipseNode fieldNode, EclipseNode errorNode, ASTNode source, boolean whineIfExists, boolean lazy) {
 		if (fieldNode.getKind() != Kind.FIELD) {
 			errorNode.addError("@Getter is only supported on a class or a field.");
 			return;
@@ -194,13 +188,12 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 				if (whineIfExists) {
 					String altNameExpl = "";
 					if (!altName.equals(getterName)) altNameExpl = String.format(" (%s)", altName);
-					errorNode.addWarning(
-						String.format("Not generating %s(): A method with that name already exists%s", getterName, altNameExpl));
+					errorNode.addWarning(String.format("Not generating %s(): A method with that name already exists%s", getterName, altNameExpl));
 				}
 				return;
 			default:
 			case NOT_EXISTS:
-				//continue scanning the other alt names.
+				// continue scanning the other alt names.
 			}
 		}
 		
@@ -213,44 +206,7 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 		injectMethod(fieldNode.up(), method);
 	}
 	
-	private MethodDeclaration generateGetter(TypeDeclaration parent, EclipseNode fieldNode, String name, int modifier, ASTNode source, boolean lazy) {
-		
-		// Remember the type; lazy will change it;
-		TypeReference returnType = copyType(((FieldDeclaration) fieldNode.get()).type, source);
-		
-		Statement[] statements;
-		if (lazy) {
-			statements = createLazyGetterBody(source, fieldNode);
-		} else {
-			statements = createSimpleGetterBody(source, fieldNode);
-		}
-		
-		MethodDeclaration method = new MethodDeclaration(parent.compilationResult);
-		setGeneratedBy(method, source);
-		method.modifiers = modifier;
-		method.returnType = returnType;
-		method.annotations = null;
-		method.arguments = null;
-		method.selector = name.toCharArray();
-		method.binding = null;
-		method.thrownExceptions = null;
-		method.typeParameters = null;
-		method.bits |= ECLIPSE_DO_NOT_TOUCH_FLAG;
-		method.bodyStart = method.declarationSourceStart = method.sourceStart = source.sourceStart;
-		method.bodyEnd = method.declarationSourceEnd = method.sourceEnd = source.sourceEnd;
-		method.statements = statements;
-		return method;
-	}
-
-	private Statement[] createSimpleGetterBody(ASTNode source, EclipseNode fieldNode) {
-		FieldDeclaration field = (FieldDeclaration) fieldNode.get();
-		Expression fieldRef = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
-		Statement returnStatement = new ReturnStatement(fieldRef, field.sourceStart, field.sourceEnd);
-		setGeneratedBy(returnStatement, source);
-		return new Statement[] {returnStatement};
-	}
-	
-	private static final char[][] AR = fromQualifiedName("java.util.concurrent.atomic.AtomicReference");
+	private static final String AR = "java.util.concurrent.atomic.AtomicReference";
 	private static final TypeReference[][] AR_PARAMS = new TypeReference[5][];
 	
 	private static final java.util.Map<String, char[][]> TYPE_MAP;
@@ -267,181 +223,354 @@ public class HandleGetter extends EclipseAnnotationHandler<Getter> {
 		TYPE_MAP = Collections.unmodifiableMap(m);
 	}
 	
-	private static char[] valueName = "value".toCharArray();
 	
-	private Statement[] createLazyGetterBody(ASTNode source, EclipseNode fieldNode) {
-		/*
-		java.util.concurrent.atomic.AtomicReference<ValueType> value = this.fieldName.get();
-		if (value == null) {
-			synchronized (this.fieldName) {
-				value = this.fieldName.get();
-				if (value == null) { 
-					value = new java.util.concurrent.atomic.AtomicReference<ValueType>(new ValueType());
-					this.fieldName.set(value);
-				}
-			}
-		}
-		return value.get();
-		*/
-		
-		FieldDeclaration field = (FieldDeclaration) fieldNode.get();
-		int pS = source.sourceStart, pE = source.sourceEnd;
-		long p = (long)pS << 32 | pE;
-		
-		TypeReference componentType = copyType(field.type, source);
-		if (field.type instanceof SingleTypeReference && !(field.type instanceof ArrayTypeReference)) {
-			char[][] newType = TYPE_MAP.get(new String(((SingleTypeReference)field.type).token));
-			if (newType != null) {
-				componentType = new QualifiedTypeReference(newType, poss(source, 3));
-				setGeneratedBy(componentType, source);
-			}
-		}
-		
-		Statement[] statements = new Statement[3];
-		
-		/* java.util.concurrent.atomic.AtomicReference<ValueType> value = this.fieldName.get(); */ {
-			LocalDeclaration valueDecl = new LocalDeclaration(valueName, pS, pE);
-			setGeneratedBy(valueDecl, source);
-			TypeReference[][] typeParams = AR_PARAMS.clone();
-			typeParams[4] = new TypeReference[] {copyType(componentType, source)};
-			valueDecl.type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
-			valueDecl.type.sourceStart = pS; valueDecl.type.sourceEnd = valueDecl.type.statementEnd = pE;
-			setGeneratedBy(valueDecl.type, source);
-			
-			MessageSend getter = new MessageSend();
-			setGeneratedBy(getter, source);
-			getter.sourceStart = pS; getter.sourceEnd = getter.statementEnd = pE;
-			getter.selector = new char[] {'g', 'e', 't'};
-			getter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
-			
-			valueDecl.initialization = getter;
-			setGeneratedBy(valueDecl.initialization, source);
-			statements[0] = valueDecl;
-		}
-		
-		/*
-		if (value == null) {
-			synchronized (this.fieldName) {
-				value = this.fieldName.get();
-				if (value == null) { 
-					value = new java.util.concurrent.atomic.AtomicReference<ValueType>(new ValueType());
-					this.fieldName.set(value);
-				}
-			}
-		}
-		 */ {
-			EqualExpression cond = new EqualExpression(
-					new SingleNameReference(valueName, p), new NullLiteral(pS, pE),
-					BinaryExpression.EQUAL_EQUAL);
-			setGeneratedBy(cond.left, source);
-			setGeneratedBy(cond.right, source);
-			setGeneratedBy(cond, source);
-			Block then = new Block(0);
-			setGeneratedBy(then, source);
-			Expression lock = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
-			Block inner = new Block(0);
-			setGeneratedBy(inner, source);
-			inner.statements = new Statement[2];
-			/* value = this.fieldName.get(); */ {
-				MessageSend getter = new MessageSend();
-				setGeneratedBy(getter, source);
-				getter.sourceStart = pS; getter.sourceEnd = getter.statementEnd = pE;
-				getter.selector = new char[] {'g', 'e', 't'};
-				getter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
-				Assignment assign = new Assignment(new SingleNameReference(valueName, p), getter, pE);
-				assign.statementEnd = assign.sourceEnd;
-				setGeneratedBy(assign, source);
-				setGeneratedBy(assign.lhs, source);
-				inner.statements[0] = assign;
-			}
-			/* if (value == null) */ {
-				EqualExpression innerCond = new EqualExpression(
-						new SingleNameReference(valueName, p), new NullLiteral(pS, pE),
-						BinaryExpression.EQUAL_EQUAL);
-				setGeneratedBy(innerCond.left, source);
-				setGeneratedBy(innerCond.right, source);
-				setGeneratedBy(innerCond, source);
-				Block innerThen = new Block(0);
-				setGeneratedBy(innerThen, source);
-				innerThen.statements = new Statement[2];
-				/*value = new java.util.concurrent.atomic.AtomicReference<ValueType>(new ValueType()); */ {
-					AllocationExpression create = new AllocationExpression();
-					setGeneratedBy(create, source);
-					create.sourceStart = pS; create.sourceEnd = create.statementEnd = pE;
-					TypeReference[][] typeParams = AR_PARAMS.clone();
-					typeParams[4] = new TypeReference[] {copyType(componentType, source)};
-					create.type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
-					create.type.sourceStart = pS; create.type.sourceEnd = create.type.statementEnd = pE;
-					setGeneratedBy(create.type, source);
-					create.arguments = new Expression[] {field.initialization};
-					Assignment innerAssign = new Assignment(new SingleNameReference(valueName, p), create, pE);
-					innerAssign.statementEnd = innerAssign.sourceEnd;
+	private final String TAG_GETTERACCESS = "<<GETTER_ACCESS>>";
+	private final String TAG_GETTERMODIFIER = "<<GETTER_ACCESSMODIFIER>>";
+	private final String TAG_GETTERSTATIC = "<<GETTER_STATIC>>";
+	private final String TAG_GETTERTYPE = "<<GETTER_TYPE>>";
+	private final String TAG_GETTERNAME = "<<GETTER_NAME>>";
+	private final String TAG_GETTERFIELD = "<<GETTER_FIELD>>";
+	private final String GETTER_TEMPLATE = 
+		TAG_GETTERMODIFIER+TAG_GETTERSTATIC+TAG_GETTERTYPE + " " + TAG_GETTERNAME + "(){ " +
+			"return "+TAG_GETTERACCESS+TAG_GETTERFIELD + ";" +
+		"}";
+	
+	private final String TAG_GETTER_INITIALVALUE = "<<GETTER_INITIALVALUE>>";
+	private final String TAG_GETTER_OBJECTTYPE = "<<GETTER_OBJECTTYPE>>";
+	private final String LAZY_GETTER_TEMPLATE =
+		TAG_GETTERMODIFIER+TAG_GETTERSTATIC+TAG_GETTERTYPE + " " + TAG_GETTERNAME + "(){"+
+		 	AR+"<"+TAG_GETTER_OBJECTTYPE+"> value="+TAG_GETTERACCESS+TAG_GETTERFIELD+".get();"+
+		 	"if (value == null) {"+
+		 		"synchronized("+TAG_GETTERACCESS+TAG_GETTERFIELD+") {"+
+		 			"value="+TAG_GETTERACCESS+TAG_GETTERFIELD+".get();"+
+		 			"if (value == null) {"+
+		 				"value=new "+AR+"<"+TAG_GETTER_OBJECTTYPE+">("+TAG_GETTER_INITIALVALUE+");"+
+		 				TAG_GETTERACCESS+TAG_GETTERFIELD+".set(value);"+
+		 			"}"+
+		 		"}"+
+		 	"}"+
+		 	"return value.get();"+
+		 "}";
 
-					setGeneratedBy(innerAssign, source);
-					setGeneratedBy(innerAssign.lhs, source);
-					innerThen.statements[0] = innerAssign;
-				}
-				
-				/*this.fieldName.set(value);*/ {
-					MessageSend setter = new MessageSend();
-					setGeneratedBy(setter, source);
-					setter.sourceStart = pS; setter.sourceEnd = setter.statementEnd = pE;
-					setter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
-					setter.selector = new char[] { 's', 'e', 't' };
-					setter.arguments = new Expression[] {
-							new SingleNameReference(valueName, p)};
-					setGeneratedBy(setter.arguments[0], source);
-					innerThen.statements[1] = setter;
-				}
-				
-				IfStatement innerIf = new IfStatement(innerCond, innerThen, pS, pE);
-				setGeneratedBy(innerIf, source);
-				inner.statements[1] = innerIf;
+	
+	private MethodDeclaration generateGetter(TypeDeclaration parent, EclipseNode fieldNode, String name, int modifier, ASTNode source, boolean lazy) {
+		// Remember the type; lazy will change it;
+		FieldDeclaration field = ((FieldDeclaration)fieldNode.get());
+		String returnTypeString = String.valueOf(((FieldDeclaration) fieldNode.get()).type.getLastToken());
+		
+		final String accessorModifier = getAccessModifierString(modifier);
+		boolean isStatic = hasStaticAccessor(field);
+		final String accessor = getAccessorName(fieldNode, isStatic);
+		final String accessorStatic = (isStatic ? "static " : "");
+		
+		final String getterSrc;
+		if (lazy) {
+			getterSrc = LAZY_GETTER_TEMPLATE
+							.replaceAll(TAG_GETTERMODIFIER, accessorModifier)
+							.replaceAll(TAG_GETTERSTATIC, accessorStatic)
+							.replaceAll(TAG_GETTERNAME, name)
+							.replaceAll(TAG_GETTERACCESS, accessor)
+							.replaceAll(TAG_GETTERFIELD, fieldNode.getName())
+							.replaceAll(TAG_GETTERTYPE, returnTypeString)
+							.replaceAll(TAG_GETTER_OBJECTTYPE, toQualifiedName(TYPE_MAP.get(returnTypeString)))
+							.replaceAll(TAG_GETTER_INITIALVALUE, field.initialization.printExpression(0, new StringBuffer()).toString());
+		
+			changeFieldType(source, field);
+		} else {
+			getterSrc = GETTER_TEMPLATE
+					.replaceAll(TAG_GETTERMODIFIER, accessorModifier)
+					.replaceAll(TAG_GETTERSTATIC, accessorStatic)
+					.replaceAll(TAG_GETTERNAME, name)
+					.replaceAll(TAG_GETTERACCESS, accessor)
+					.replaceAll(TAG_GETTERFIELD, fieldNode.getName())
+					.replaceAll(TAG_GETTERTYPE, returnTypeString);
+		}
+		
+		MethodDeclaration method = parseMethod(parent, getterSrc);
+		int newMethodSize = method.declarationSourceEnd-method.declarationSourceStart+1;
+		int newOffset = parent.bodyEnd;
+		parent.bodyEnd += newMethodSize;
+		parent.declarationSourceEnd += newMethodSize;
+		method.traverse(new MarkAsGeneratedByVisitor(source, newOffset), parent.scope);
+
+		return method;
+	}
+
+	private MethodDeclaration parseMethod(TypeDeclaration parent, final String getterSrc) {
+		ISourceElementRequestor requestor = new SourceElementRequestorAdapter();
+		IProblemFactory problemFactory = new DefaultProblemFactory();
+		CompilerOptions options = new CompilerOptions(JavaCore.getOptions());
+		SourceElementParser parser = new SourceElementParser(requestor, problemFactory, options, false, false);
+
+		CompilationUnitDeclaration sourceUnit = new CompilationUnitDeclaration(parser.problemReporter(), parent.compilationResult, getterSrc.length());
+		ASTNode[] decl = parser.parseClassBodyDeclarations(getterSrc.toCharArray(), 0, getterSrc.length(), sourceUnit);
+		MethodDeclaration method = (MethodDeclaration) decl[0];
+		return method;
+	}
+
+	private String getAccessorName(EclipseNode fieldNode, boolean isStatic) {
+		final String accessor;
+		if (isStatic) {
+			EclipseNode containerNode = fieldNode.up();
+			if (containerNode != null && containerNode.get() instanceof TypeDeclaration) {
+				accessor = String.valueOf(((TypeDeclaration)containerNode.get()).name)+".";
+			} else {
+				accessor = "";
 			}
-			
-			SynchronizedStatement sync = new SynchronizedStatement(lock, inner, pS, pE);
-			setGeneratedBy(sync, source);
-			then.statements = new Statement[] {sync};
-			
-			IfStatement ifStatement = new IfStatement(cond, then, pS, pE);
-			setGeneratedBy(ifStatement, source);
-			statements[1] = ifStatement;
+		} else {
+			accessor = "this.";
 		}
-		
-		/* return value.get(); */ {
-			MessageSend getter = new MessageSend();
-			setGeneratedBy(getter, source);
-			getter.sourceStart = pS; getter.sourceEnd = getter.statementEnd = pE;
-			getter.selector = new char[] {'g', 'e', 't'};
-			getter.receiver = new SingleNameReference(valueName, p);
-			setGeneratedBy(getter.receiver, source);
-			
-			statements[2] = new ReturnStatement(getter, pS, pE);
-			setGeneratedBy(statements[2], source);
+		return accessor;
+	}
+
+	private boolean hasStaticAccessor(FieldDeclaration field) {
+		return (field.modifiers & ClassFileConstants.AccStatic) != 0;
+	}
+
+	private String getAccessModifierString(int modifier) {
+		final String accessorModifier;
+		if ((modifier & ClassFileConstants.AccPrivate) != 0) {
+			accessorModifier = "";
+		} else if ((modifier & ClassFileConstants.AccProtected) != 0) {
+			accessorModifier = "protected ";
+		} else if ((modifier & ClassFileConstants.AccPublic) != 0) {
+			accessorModifier = "public ";			
+		} else {
+			throw new IllegalArgumentException();
 		}
-		
-		
-		// update the field type and init last
+		return accessorModifier;
+	}
+
+	private void changeFieldType(ASTNode source, FieldDeclaration field) {
+		{
+			/*
+			 * @Getter(lazy=true,value=AccessLevel.PRIVATE) 
+			 * private final java.util.concurrent.atomic.AtomicReference<java.util.concurrent.atomic.AtomicReference<java.lang.Integer>> doSomething=new java.util.concurrent.atomic.AtomicReference<java.util.concurrent.atomic.AtomicReference<java.lang.Integer>>();
+			 * 
+			 */
+			TypeReference componentType = copyType(field.type, source);
+			if (field.type instanceof SingleTypeReference && !(field.type instanceof ArrayTypeReference)) {
+				char[][] newType = TYPE_MAP.get(new String(((SingleTypeReference) field.type).token));
+				if (newType != null) {
+					componentType = new QualifiedTypeReference(newType, poss(source, 3));
+					setGeneratedBy(componentType, source);
+				}
+			}
+
+			TypeReference[][] firstTypeParams = AR_PARAMS.clone();
+			firstTypeParams[4] = new TypeReference[] {copyType(componentType, source)};
+			TypeReference firstType = new ParameterizedQualifiedTypeReference(fromQualifiedName(AR), firstTypeParams, 0, poss(source, 5));
 			
-		/* 	private final java.util.concurrent.atomic.AtomicReference<java.util.concurrent.atomic.AtomicReference<ValueType> fieldName = new java.util.concurrent.atomic.AtomicReference<java.util.concurrent.atomic.AtomicReference<ValueType>>(); */ {
-			
-			LocalDeclaration first = (LocalDeclaration) statements[0];
-			TypeReference innerType = copyType(first.type, source);
+			TypeReference innerType = copyType(firstType, source);
 			
 			TypeReference[][] typeParams = AR_PARAMS.clone();
 			typeParams[4] = new TypeReference[] {copyType(innerType, source)};
-			TypeReference type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
+			TypeReference type = new ParameterizedQualifiedTypeReference(fromQualifiedName(AR), typeParams, 0, poss(source, 5));
 			// Some magic here
-			type.sourceStart = -1; type.sourceEnd = type.statementEnd = -2;
+			type.sourceStart = -1;
+			type.sourceEnd = type.statementEnd = -2;
 			setGeneratedBy(type, source);
 			
 			field.type = type;
 			AllocationExpression init = new AllocationExpression();
 			// Some magic here
-			init.sourceStart = field.initialization.sourceStart; init.sourceEnd = init.statementEnd = field.initialization.sourceEnd;
+			init.sourceStart = field.initialization.sourceStart;
+			init.sourceEnd = init.statementEnd = field.initialization.sourceEnd;
 			init.type = copyType(type, source);
 			field.initialization = init;
 		}
-		return statements;
 	}
+	
+//	private Statement[] createSimpleGetterBody(ASTNode source, EclipseNode fieldNode) {
+//		FieldDeclaration field = (FieldDeclaration) fieldNode.get();
+//		Expression fieldRef = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
+//		Statement returnStatement = new ReturnStatement(fieldRef, field.sourceStart, field.sourceEnd);
+//		setGeneratedBy(returnStatement, source);
+//		return new Statement[] {returnStatement};
+//	}
+	
+//	private static char[] valueName = "value".toCharArray();
+	
+//	private Statement[] createLazyGetterBody(ASTNode source, EclipseNode fieldNode) {
+//		/*
+//		 * java.util.concurrent.atomic.AtomicReference<ValueType> value =
+//		 * this.fieldName.get(); if (value == null) { synchronized
+//		 * (this.fieldName) { value = this.fieldName.get(); if (value == null) {
+//		 * value = new
+//		 * java.util.concurrent.atomic.AtomicReference<ValueType>(new
+//		 * ValueType()); this.fieldName.set(value); } } } return value.get();
+//		 */
+//		
+//		FieldDeclaration field = (FieldDeclaration) fieldNode.get();
+//		int pS = source.sourceStart, pE = source.sourceEnd;
+//		long p = (long) pS << 32 | pE;
+//		
+//		TypeReference componentType = copyType(field.type, source);
+//		if (field.type instanceof SingleTypeReference && !(field.type instanceof ArrayTypeReference)) {
+//			char[][] newType = TYPE_MAP.get(new String(((SingleTypeReference) field.type).token));
+//			if (newType != null) {
+//				componentType = new QualifiedTypeReference(newType, poss(source, 3));
+//				setGeneratedBy(componentType, source);
+//			}
+//		}
+//		
+//		Statement[] statements = new Statement[3];
+//		
+//		/*
+//		 * java.util.concurrent.atomic.AtomicReference<ValueType> value =
+//		 * this.fieldName.get();
+//		 */{
+//			LocalDeclaration valueDecl = new LocalDeclaration(valueName, pS, pE);
+//			setGeneratedBy(valueDecl, source);
+//			TypeReference[][] typeParams = AR_PARAMS.clone();
+//			typeParams[4] = new TypeReference[] {copyType(componentType, source)};
+//			valueDecl.type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
+//			valueDecl.type.sourceStart = pS;
+//			valueDecl.type.sourceEnd = valueDecl.type.statementEnd = pE;
+//			setGeneratedBy(valueDecl.type, source);
+//			
+//			MessageSend getter = new MessageSend();
+//			setGeneratedBy(getter, source);
+//			getter.sourceStart = pS;
+//			getter.sourceEnd = getter.statementEnd = pE;
+//			getter.selector = new char[] {'g', 'e', 't'};
+//			getter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
+//			
+//			valueDecl.initialization = getter;
+//			setGeneratedBy(valueDecl.initialization, source);
+//			statements[0] = valueDecl;
+//		}
+//		
+//		/*
+//		 * if (value == null) { synchronized (this.fieldName) { value =
+//		 * this.fieldName.get(); if (value == null) { value = new
+//		 * java.util.concurrent.atomic.AtomicReference<ValueType>(new
+//		 * ValueType()); this.fieldName.set(value); } } }
+//		 */{
+//			EqualExpression cond = new EqualExpression(new SingleNameReference(valueName, p), new NullLiteral(pS, pE), BinaryExpression.EQUAL_EQUAL);
+//			setGeneratedBy(cond.left, source);
+//			setGeneratedBy(cond.right, source);
+//			setGeneratedBy(cond, source);
+//			Block then = new Block(0);
+//			setGeneratedBy(then, source);
+//			Expression lock = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
+//			Block inner = new Block(0);
+//			setGeneratedBy(inner, source);
+//			inner.statements = new Statement[2];
+//			/* value = this.fieldName.get(); */{
+//				MessageSend getter = new MessageSend();
+//				setGeneratedBy(getter, source);
+//				getter.sourceStart = pS;
+//				getter.sourceEnd = getter.statementEnd = pE;
+//				getter.selector = new char[] {'g', 'e', 't'};
+//				getter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
+//				Assignment assign = new Assignment(new SingleNameReference(valueName, p), getter, pE);
+//				assign.statementEnd = assign.sourceEnd;
+//				setGeneratedBy(assign, source);
+//				setGeneratedBy(assign.lhs, source);
+//				inner.statements[0] = assign;
+//			}
+//			/* if (value == null) */{
+//				EqualExpression innerCond = new EqualExpression(new SingleNameReference(valueName, p), new NullLiteral(pS, pE), BinaryExpression.EQUAL_EQUAL);
+//				setGeneratedBy(innerCond.left, source);
+//				setGeneratedBy(innerCond.right, source);
+//				setGeneratedBy(innerCond, source);
+//				Block innerThen = new Block(0);
+//				setGeneratedBy(innerThen, source);
+//				innerThen.statements = new Statement[2];
+//				/*
+//				 * value = new
+//				 * java.util.concurrent.atomic.AtomicReference<ValueType>(new
+//				 * ValueType());
+//				 */{
+//					AllocationExpression create = new AllocationExpression();
+//					setGeneratedBy(create, source);
+//					create.sourceStart = pS;
+//					create.sourceEnd = create.statementEnd = pE;
+//					TypeReference[][] typeParams = AR_PARAMS.clone();
+//					typeParams[4] = new TypeReference[] {copyType(componentType, source)};
+//					create.type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
+//					create.type.sourceStart = pS;
+//					create.type.sourceEnd = create.type.statementEnd = pE;
+//					setGeneratedBy(create.type, source);
+//					create.arguments = new Expression[] {field.initialization};
+//					Assignment innerAssign = new Assignment(new SingleNameReference(valueName, p), create, pE);
+//					innerAssign.statementEnd = innerAssign.sourceEnd;
+//					
+//					setGeneratedBy(innerAssign, source);
+//					setGeneratedBy(innerAssign.lhs, source);
+//					innerThen.statements[0] = innerAssign;
+//				}
+//				
+//				/* this.fieldName.set(value); */{
+//					MessageSend setter = new MessageSend();
+//					setGeneratedBy(setter, source);
+//					setter.sourceStart = pS;
+//					setter.sourceEnd = setter.statementEnd = pE;
+//					setter.receiver = createFieldAccessor(fieldNode, FieldAccess.ALWAYS_FIELD, source);
+//					setter.selector = new char[] {'s', 'e', 't'};
+//					setter.arguments = new Expression[] {new SingleNameReference(valueName, p)};
+//					setGeneratedBy(setter.arguments[0], source);
+//					innerThen.statements[1] = setter;
+//				}
+//				
+//				IfStatement innerIf = new IfStatement(innerCond, innerThen, pS, pE);
+//				setGeneratedBy(innerIf, source);
+//				inner.statements[1] = innerIf;
+//			}
+//			
+//			SynchronizedStatement sync = new SynchronizedStatement(lock, inner, pS, pE);
+//			setGeneratedBy(sync, source);
+//			then.statements = new Statement[] {sync};
+//			
+//			IfStatement ifStatement = new IfStatement(cond, then, pS, pE);
+//			setGeneratedBy(ifStatement, source);
+//			statements[1] = ifStatement;
+//		}
+//		
+//		/* return value.get(); */{
+//			MessageSend getter = new MessageSend();
+//			setGeneratedBy(getter, source);
+//			getter.sourceStart = pS;
+//			getter.sourceEnd = getter.statementEnd = pE;
+//			getter.selector = new char[] {'g', 'e', 't'};
+//			getter.receiver = new SingleNameReference(valueName, p);
+//			setGeneratedBy(getter.receiver, source);
+//			
+//			statements[2] = new ReturnStatement(getter, pS, pE);
+//			setGeneratedBy(statements[2], source);
+//		}
+//		
+//		// update the field type and init last
+//		
+//		/*
+//		 * private final
+//		 * java.util.concurrent.atomic.AtomicReference<java.util.concurrent
+//		 * .atomic.AtomicReference<ValueType> fieldName = new
+//		 * java.util.concurrent
+//		 * .atomic.AtomicReference<java.util.concurrent.atomic
+//		 * .AtomicReference<ValueType>>();
+//		 */{
+//			
+//			LocalDeclaration first = (LocalDeclaration) statements[0];
+//			TypeReference innerType = copyType(first.type, source);
+//			
+//			TypeReference[][] typeParams = AR_PARAMS.clone();
+//			typeParams[4] = new TypeReference[] {copyType(innerType, source)};
+//			TypeReference type = new ParameterizedQualifiedTypeReference(AR, typeParams, 0, poss(source, 5));
+//			// Some magic here
+//			type.sourceStart = -1;
+//			type.sourceEnd = type.statementEnd = -2;
+//			setGeneratedBy(type, source);
+//			
+//			field.type = type;
+//			AllocationExpression init = new AllocationExpression();
+//			// Some magic here
+//			init.sourceStart = field.initialization.sourceStart;
+//			init.sourceEnd = init.statementEnd = field.initialization.sourceEnd;
+//			init.type = copyType(type, source);
+//			field.initialization = init;
+//		}
+//		return statements;
+//	}
 }

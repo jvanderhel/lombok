@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -54,7 +55,42 @@ public class PatchFixes {
 		}
 		return result;
 	}
+	
+	public static boolean isGenerated(org.eclipse.jdt.core.dom.ASTNode node) {
+		boolean result = false;
+		try {
+			result =  ((Boolean)node.getClass().getField("$isGenerated").get(node)).booleanValue();
+			if (!result && node.getParent() != null && node.getParent() instanceof org.eclipse.jdt.core.dom.QualifiedName)
+				result = isGenerated(node.getParent());
+		} catch (Exception e) {
+			// better to assume it isn't generated
+		}
 
+		return result;
+	}
+	
+	public static boolean returnFalse(Object object) {
+		return false;
+	}
+
+	public static int increaseSourceLength(int original) {
+		return original += 10000;
+	}
+
+	
+	public static char[] increaseSourceLength(char[] original) {
+		if (original == null)
+			return null;
+		else
+			return Arrays.copyOf(original, original.length+10000);
+	}
+	
+	public static String increaseSourceLength(String original) {
+		if (original == null)
+			return null;
+		return String.format("%1$-" + (original.length()+10000) + "s", original);
+	}
+	
 	public static org.eclipse.jdt.core.ISourceRange fixJavaEditorSetSelection(org.eclipse.jdt.core.ISourceRange original, org.eclipse.jdt.core.ISourceReference reference) throws org.eclipse.jdt.core.JavaModelException {
 		if (reference instanceof org.eclipse.jdt.internal.core.SourceRefElement) {
 			Object elementInfo = ((org.eclipse.jdt.internal.core.SourceRefElement) reference).getElementInfo();
