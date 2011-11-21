@@ -287,10 +287,10 @@ import org.mangosdk.spi.ProviderFor;
 		}
 		
 		MethodDeclaration method = parseMethod(parent, getterSrc);
-		int newMethodSize = method.declarationSourceEnd-method.declarationSourceStart+1;
-		int newOffset = parent.bodyEnd;
-		parent.bodyEnd += newMethodSize;
-		parent.declarationSourceEnd += newMethodSize;
+//		int newMethodSize = method.declarationSourceEnd-method.declarationSourceStart+1;
+		int newOffset = parent.bodyStart;
+//		parent.bodyEnd += newMethodSize;
+//		parent.declarationSourceEnd += newMethodSize;
 		method.traverse(new MarkAsGeneratedByVisitor(source, newOffset), parent.scope);
 
 		return method;

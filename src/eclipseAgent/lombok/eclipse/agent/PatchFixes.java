@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -73,23 +72,18 @@ public class PatchFixes {
 		return false;
 	}
 
-	public static int increaseSourceLength(int original) {
-		return original += 10000;
-	}
-
-	
-	public static char[] increaseSourceLength(char[] original) {
-		if (original == null)
-			return null;
-		else
-			return Arrays.copyOf(original, original.length+10000);
-	}
-	
-	public static String increaseSourceLength(String original) {
-		if (original == null)
-			return null;
-		return String.format("%1$-" + (original.length()+10000) + "s", original);
-	}
+//	public static char[] increaseSourceLength(char[] original) {
+//		if (original == null)
+//			return null;
+//		else
+//			return Arrays.copyOf(original, original.length+10000);
+//	}
+//	
+//	public static String increaseSourceLength(String original) {
+//		if (original == null)
+//			return null;
+//		return String.format("%1$-" + (original.length()+10000) + "s", original);
+//	}
 	
 	public static org.eclipse.jdt.core.ISourceRange fixJavaEditorSetSelection(org.eclipse.jdt.core.ISourceRange original, org.eclipse.jdt.core.ISourceReference reference) throws org.eclipse.jdt.core.JavaModelException {
 		if (reference instanceof org.eclipse.jdt.internal.core.SourceRefElement) {

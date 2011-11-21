@@ -134,36 +134,31 @@ public class EclipsePatcher extends Agent {
 		/*
 		 *	Skip generated nodes for "visual effects" (syntax highlighting && highlight occurences)
 		 */
+		//TODO:JH addUsage and addWrite should add a generated tag to position so we van respond to that later (sometimes we want them sometimes we don't
 		sm.addScript(ScriptBuilder.exitEarly()
 				.target(new MethodTarget("org.eclipse.jdt.internal.ui.search.OccurrencesFinder", "addUsage"))
-				.target(new MethodTarget("org.eclipse.jdt.internal.ui.search.OccurrencesFinder", "addWrite"))
+//				.target(new MethodTarget("org.eclipse.jdt.internal.ui.search.OccurrencesFinder", "addWrite"))
 				.target(new MethodTarget("org.eclipse.jdt.internal.ui.javaeditor.SemanticHighlightingReconciler$PositionCollector", "visit", "boolean", "org.eclipse.jdt.core.dom.SimpleName"))
 				.decisionMethod(new Hook("lombok.eclipse.agent.PatchFixes", "isGenerated", "boolean", "org.eclipse.jdt.core.dom.ASTNode"))
 				.valueMethod(new Hook("lombok.eclipse.agent.PatchFixes", "returnFalse", "boolean", "java.lang.Object"))
 				.request(StackRequest.PARAM1)
 				.build());
 
-		sm.addScript(ScriptBuilder.wrapMethodCall()
-				.target(new MethodTarget("org.eclipse.text.edits.TextEditProcessor","checkIntegrityDo"))
-				.methodToWrap(new Hook("org.eclipse.jface.text.IDocument","getLength", "int"))
-				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "increaseSourceLength", "int", "int"))
-				.transplant().build());
-
-		/*
-		 *	Increase sourceLength so we'll stay in range, we reserve 10000 characters for generated methods
-		 *	10000 is an arbitrary number, which might need some adjustment
-		 */
-		sm.addScript(ScriptBuilder.wrapReturnValue()
-				.target(new MethodTarget("org.eclipse.jdt.internal.core.Buffer", "getCharacters"))
-				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "increaseSourceLength", "char[]", "char[]"))
-				.request(StackRequest.RETURN_VALUE)
-				.transplant().build());
-		
-		sm.addScript(ScriptBuilder.wrapReturnValue()
-				.target(new MethodTarget("org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter", "getContents"))
-				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "increaseSourceLength", "java.lang.String", "java.lang.String"))
-				.request(StackRequest.RETURN_VALUE)
-				.transplant().build());
+//		/*
+//		 *	Increase sourceLength so we'll stay in range, we reserve 10000 characters for generated methods
+//		 *	10000 is an arbitrary number, which might need some adjustment
+//		 */
+//		sm.addScript(ScriptBuilder.wrapReturnValue()
+//				.target(new MethodTarget("org.eclipse.jdt.internal.core.Buffer", "getCharacters"))
+//				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "increaseSourceLength", "char[]", "char[]"))
+//				.request(StackRequest.RETURN_VALUE)
+//				.transplant().build());
+//		
+//		sm.addScript(ScriptBuilder.wrapReturnValue()
+//				.target(new MethodTarget("org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter", "getContents"))
+//				.wrapMethod(new Hook("lombok.eclipse.agent.PatchFixes", "increaseSourceLength", "java.lang.String", "java.lang.String"))
+//				.request(StackRequest.RETURN_VALUE)
+//				.transplant().build());
 		
 		/*
 		 * Add field to store the location of the annotation to jump to
