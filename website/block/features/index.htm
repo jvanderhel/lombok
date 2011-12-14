@@ -1,0 +1,55 @@
+<div class="meat">
+	<h1>Lombok features</h1>
+	<div class="index overview">
+		<dl>
+			<dt><a href="javascript: loadHtml('content','block/features/GetterSetter.htm');"><code>@Getter</code> / <code>@Setter</code></a></dt>
+			<dd>Never write <code>public int getFoo() {return foo;}</code> again.</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/GetterLazy.htm');"><code>@Getter(lazy=true)</code></a></dt>
+			<dd>Laziness is a virtue!</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/ToString.htm');"><code>@ToString</code></a></dt>
+			<dd>No need to start a debugger to see your fields: Just let lombok generate a <code>toString</code> for you!</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/EqualsAndHashCode.htm');"><code>@EqualsAndHashCode</code></a></dt>
+			<dd>Equality made easy: Generates <code>hashCode</code> and <code>equals</code> implementations from the fields of your object.</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/Constructor.htm');"><code>@NoArgsConstructor</code>, <code>@RequiredArgsConstructor</code> and <code>@AllArgsConstructor</code></a></dt>
+			<dd>Constructors made to order: Generates constructors that take no arguments, one argument per final / non-null field, or one argument for every field.</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/Data.htm');"><code>@Data</code></a></dt>
+			<dd>All together now: A shortcut for <code>@ToString</code>, <code>@EqualsAndHashCode</code>,
+				<code>@Getter</code> on all fields, and <code>@Setter</code> on all non-final fields, and <code>@RequiredArgsConstructor</code>!</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/Cleanup.htm');"><code>@Cleanup</code></a></dt>
+			<dd>Automatic resource management: Call your <code>close()</code> methods safely with no hassle.</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/Synchronized.htm');"><code>@Synchronized</code></a></dt>
+			<dd><code>synchronized</code> done right: Don't expose your locks.</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/SneakyThrows.htm');"><code>@SneakyThrows</code></a></dt>
+			<dd>To boldly throw checked exceptions where no one has thrown them before!</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/Log.htm');"><code>@Log</code></a></dt>
+			<dd>Captain's Log, stardate 24435.7: &quot;What was that line again?&quot;</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/val.htm');"><code>val</code></a></dt>
+			<dd>Finally! Hassle-free final local variables.</dd>
+			<dt><a href="javascript: loadHtml('content','block/features/Delegate.htm');"><code>@Delegate</code></a></dt>
+			<dd>Don't lose your composition.</dd>
+		</dl>
+	</div>
+	<div class="pointer">
+		The documentation above is a lot easier to follow, but if you want to build your own transformations,
+		or you want to add javadoc to <code>lombok.jar</code> in your IDE, you can also check out <a href="api/index.html">the javadoc</a>.
+	</div>
+	<h1>Running Lombok</h1>
+	<h3>On eclipse</h3>
+		Execute lombok.jar (doubleclick it, or run java -jar lombok.jar). Follow instructions.
+	<h3>On javac (and maven, ant, and other build tools)</h3>
+		Include lombok.jar on the classpath as you compile. That's all there is to it!<br />
+		Lombok hosts its own  repository, so adding lombok to maven is very simple. <a href="javascript: loadHtml('content','block/mavenrepo.htm');">full instructions are here</a>.
+	<h3>On GWT (Google Widget Toolkit)</h3>
+		See <a href="javascript: loadHtml('content', 'block/setup/gwt.htm');">gwt</a> setup.
+	<h3>On javadoc, and other source-based tools</h3>
+		Use <a href="javascript: loadHtml('content','block/features/delombok.htm');">delombok</a> first, then run javadoc or GWT on the delombok-ed code.
+	<h1>Running delombok</h1>
+		<div>Delombok copies your source files to another directory, replacing all lombok annotations with their desugared form. So, it'll turn <code>@Getter</code>
+			back into the actual getter. It then removes the annotation. This is useful for all sorts of reasons; you can check out what's happening under the hood,
+			if the unthinkable happens and you want to stop using lombok, you can easily remove all traces of it in your source, and you can use delombok to preprocess
+			your source files for source-level tools such as javadoc and GWT. More information about how to run delombok, including instructions for build tools
+			can be found at the <a href="javascript: loadHtml('content','block/features/delombok.htm');">delombok page</a>.</div>
+</div>
+<div class="endBar">
+	<a href="javascript: loadHtml('content', 'block/video.htm');">Home</a>
+</div>

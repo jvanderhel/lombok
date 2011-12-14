@@ -1,0 +1,375 @@
+body {
+	font-family: Verdana;
+	padding-top: 20px;
+}
+
+img,div,a,input,button,.pngfix {
+	behavior: url(../script/iepngfix.htc);
+}
+
+h1 {
+	padding: 8px 0 10px 0;
+	font-size: 20px;
+	width: 100%;
+	text-align: center;
+}
+
+dt {
+	margin-top: 4px;
+	font-size: 1.2em;
+}
+
+dd {
+	margin-left: 16px;
+}
+
+p {
+	margin: 4px 0 4px 0;
+}
+
+ul {
+	list-style-image: url(../image/lombokBullet.png);
+	list-style-position: inside;
+}
+
+code {
+	font-weight: bold;
+}
+
+code a {
+	color: black;
+	text-decoration: none;
+}
+
+code a:hover {
+	color: black;
+	text-decoration: underline;
+}
+
+code .keyword {
+	color: #7f0055;
+	font-weight: bold;
+}
+
+code .staticfield {
+	color: #2a00ff;
+	font-style: italic;	
+}
+
+.button img {
+	padding: 0 8px 0 8px;
+	display: block;
+}
+
+.button span {
+	display: block;
+	width: 80px;
+	text-align: center;
+	font-size: 14px;
+}
+
+.downloadLink img {
+	margin: 4px 20px 4px 16px;
+	float: left;
+	width: 48px;
+}
+
+.downloadLink span {
+	display: block;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.personList h3 {
+	font-size: 1em;
+}
+
+.person img {
+	text-align: center;
+	margin: 0 auto;
+	display: block;
+}
+
+.index dt {
+	margin-top: 8px;
+	font-size: 1.2em;
+}
+
+.overview code {
+	font-size: 1.1em;
+	white-space: nowrap;
+}
+
+.smallprint code {
+	font-size: 1em;
+	white-space: nowrap;
+}
+
+.snippet code {
+	font-size: 14px;
+}
+
+.snippet font {
+	white-space: pre;
+}
+
+#pepper {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+}
+
+.main {
+	width: 800px;
+	margin: 0 auto 0 auto;
+	cursor: default;
+}
+
+.meat {
+	width: 800px;
+	margin: 0 auto 0 auto;
+	cursor: default;
+	min-height: 480px;
+}
+
+.meat .header {
+	position: absolute;
+	top: 10px;
+	left: 30px;
+}
+
+.buttonBar {
+	-webkit-border-top-right-radius: 15px 15px;
+	-webkit-border-top-left-radius: 15px 15px;
+	-moz-border-radius-topright: 15px;
+	-moz-border-radius-topleft: 15px;
+	border-top-right-radius: 15px 15px;
+	border-top-left-radius: 15px 15px;
+	background-image: url(../image/buttonbar.jpg);
+	width: 800px;
+	height: 170px;
+}
+
+.endBar {
+	-webkit-border-bottom-right-radius: 15px 15px;
+	-webkit-border-bottom-left-radius: 15px 15px;
+	-moz-border-radius-bottomright: 15px;
+	-moz-border-radius-bottomleft: 15px;
+	border-bottom-right-radius: 15px 15px;
+	border-bottom-left-radius: 15px 15px;
+	background-image: url(../image/buttonbar.jpg);
+	width: 800px;
+	height: 30px;
+	line-height: 30px;
+	font-size: 14px;
+	text-align: center;
+	clear: both;
+}
+
+.button {
+	margin: 30px 16px auto 16px;
+	float: left;
+	width: 80px;
+	height: 100px;
+}
+
+.button:first-child {
+	margin-left: 64px;
+}
+
+.downloadContainer {
+	float: left;
+	margin: 34px 8px 57px 40px;
+}
+
+.attribution {
+	font-size: 0.6em;
+}
+
+.downloadLink {
+	background-image: url(../image/downloadButton.png);
+	display: block;
+	line-height: 56px;
+	width: 225px;
+	height: 56px;
+}
+
+.versionInfo {
+	font-size: 12px;
+	margin-top: 4px;
+	font-weight: normal;
+	width: 100%;
+	text-align: center;
+}
+
+.downloadActions {
+	margin-top: 8px;
+	margin-left: 32px;
+}
+
+.footer {
+	margin-top: 8px;
+	display: block;
+	color: #555;
+	font-style: italic;
+	font-size: 11px;
+	width: 100%;
+	text-align: center;
+}
+
+.creditsLink {
+	font-style: normal;
+	font-weight: bold;
+}
+
+.downloadHelp {
+	margin: 32px 16px 32px 0px;
+}
+
+.downloadHelp .platform {
+	font-size: 1.2em;
+	font-weight: bold;
+	padding-right: 32px;
+}
+
+.stableLink {
+	font-size: 1.5em;
+	margin-bottom: 16px;
+}
+
+.edgeLink {
+	margin-bottom: 16px;
+}
+
+.personList {
+	clear: both;
+	padding-top: 16px;
+}
+
+.person {
+	width: 128px;
+	float: left;
+	margin-right: 32px;
+}
+
+.person .imgCt {
+	width: 128px;
+}
+
+.person .name {
+	margin: 0 auto 0 auto;
+	width: 100%;
+	text-align: center;
+	display: block;
+}
+
+.thanks {
+	clear: both;
+	padding-top: 32px;
+}
+
+.back {
+	margin-top: 32px;
+}
+
+.screenshot {
+	margin: 4px 0 4px 0;
+	width: 800px;
+	height: 480px;
+}
+
+.snippet {
+	font-family: "Courier New", Courier;
+	font-weight: bold;
+	white-space: pre;
+	padding: 4px 16px 4px 16px;
+	border: 1px #888 dashed;
+}
+
+.byline {
+	width: 100%;
+	text-align: center;
+	font-style: italic;
+	font-size: 1.3em;
+}
+
+.index {
+	font-size: 1.2em;
+}
+
+.smallprint {
+	font-size: 0.8em;
+	color: #444;
+}
+
+.snippets {
+	margin-top: 0px;
+}
+
+.snippets .pre {
+	float: left;
+	width: 45%;
+}
+
+.snippet {
+	overflow: auto;
+	padding: 4px;
+	border: 1px dotted #888;
+}
+
+.snippets .sep {
+	display: block;
+	width: 5%;
+	height: 1px;
+	float: left;
+}
+
+.snippets .post {
+	float: left;
+	width: 45%;
+}
+
+.snippets .end {
+	clear: both;
+}
+
+.footer {
+	clear: left;
+	margin: 0 auto 0 auto;
+	padding: 16px 0 16px 0;
+	display: block;
+	text-align: center;
+}
+
+.footer .disabled {
+	color: #aaa;
+}
+
+.footer .copyright {
+	color: #555;
+	font-size: 11px;
+	font-style: italic;
+}
+
+.creditsLink {
+	font-style: normal;
+	font-weight: bold;
+}
+
+#buttonBar a.button, a.downloadLink {
+	text-decoration: none;
+	color: black;
+}
+
+#buttonBar a.button:hover, a.downloadLink:hover {
+	text-decoration: underline;
+	color: blue;
+}
+
+#downloadInfo {
+	font-size: 14px;
+}
+
+#downloadInfo p {
+	padding: 8px;
+}

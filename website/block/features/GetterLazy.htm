@@ -1,0 +1,41 @@
+<div class="meat">
+	<h1>@Getter(lazy=true)</h1>
+	<div class="byline">Laziness is a virtue!</div>
+	<div class="overview">
+		<h3>Overview</h3>
+		<p>
+		<em>NEW IN Lombok 0.10: </em>You can let lombok generate a getter which will calculate a value once, the first time this getter is called, and cache it from then on. This can be useful
+		if calculating the value takes a lot of CPU, or the value takes a lot of memory. To use this feature, create a <code>private final</code> variable,
+		initialize it with the expression that's expensive to run, and annotate your field with <code>@Getter(lazy=true)</code>. The field will be hidden from the
+		rest of your code, and the expression will be evaluated no more than once, when the getter is first called. There are no magic marker values (i.e. even
+		if the result of your expensive calculation is <code>null</code>, the result is cached) and your expensive calculation need not be thread-safe, as lombok
+		takes care of locking.
+		</p>
+	</div>
+	<div class="snippets">
+		<div class="pre">
+			<h3>With Lombok</h3>
+			<div class="snippet">@HTML_PRE@</div>
+		</div>
+		<div class="sep"></div>
+		<div class="post">
+			<h3>Vanilla Java</h3>
+			<div class="snippet">@HTML_POST@</div>
+		</div>
+	</div>
+	<div style="clear: left;"></div>
+	<div class="overview">
+		<h3>Small print</h3><div class="smallprint">
+			<p>
+			Lombok actually creates a few fields all prefixed with <code>$lombok$</code> to cache the value. You should not rely on the exact type, name, and structure
+			of these fields as future implementations may change them. To access the lazily initialized value, <em>always</em> use the generated getter.
+			</p><p>
+			Other Lombok annotations such as <code>@ToString</code> always call the getter even if you use <code>doNotUseGetters=true</code>.
+			</p>
+		</div>
+	</div>
+</div>
+<div class="endBar">
+	<a href="javascript: loadHtml('content', 'block/video.htm');">Home</a>
+	<a href="javascript: loadHtml('content', 'block/features/index.htm');">Back to features</a> | <a href="javascript: loadHtml('content', 'block/features/GetterSetter.htm');">Previous feature (@Getter / @Setter)</a> | <a href="javascript: loadHtml('content', 'block/features/ToString.htm')">Next feature (@ToString)</a>
+</div>

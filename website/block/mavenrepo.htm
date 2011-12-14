@@ -1,0 +1,28 @@
+<div class="meat">
+	<h1>Use Lombok via Maven or ivy</h1>
+	<div>
+		You can use lombok with maven by adding the following to your <strong>pom.xml</strong>:
+		<div class="snippet">&lt;dependencies&gt;
+&lt;dependency&gt;
+	&lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+	&lt;artifactId&gt;lombok&lt;/artifactId&gt;
+	&lt;version&gt;@VERSION@&lt;/version&gt;
+	&lt;scope&gt;provided&lt;/scope&gt;
+&lt;/dependency&gt;
+&lt;/dependencies&gt;</div>
+	</div>
+	<div>
+		You can use lombok with ivy by adding the following to your <strong>ivy.xml</strong>:
+		<div class="snippet">&lt;dependency org="org.projectlombok" name="lombok" rev="@VERSION@" conf="build" /&gt;</div>
+	</div>
+	<div>
+		<em><strong>CAREFUL:</strong></em> lombok requires using the javac v1.6 compiler or higher.
+	</div>
+	That's all there is to it!<br />
+	<em>note:</em> You'll still need to download lombok, or doubleclick on the lombok.jar file downloaded by maven, to install lombok into your eclipse installation.<br />
+	<a id="downloadLink" href="http://projectlombok.googlecode.com/files/lombok.jar">Download lombok.jar</a>
+	</div>
+</div>
+<div class="endBar">
+	<a href="javascript: loadHtml('content', 'block/video.htm');">Home</a>
+</div>

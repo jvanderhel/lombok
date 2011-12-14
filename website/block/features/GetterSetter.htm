@@ -1,0 +1,69 @@
+<div class="meat">
+	<h1>@Getter and @Setter</h1>
+	<div class="byline">Never write <code>public int getFoo() {return foo;}</code> again.</div>
+	<div class="overview">
+		<h3>Overview</h3>
+		<p>
+		You can annotate any field with <code>@Getter</code> and/or <code>@Setter</code>, to let lombok generate the default getter/setter automatically.<br />
+		A default getter simply returns the field, and is named <code>getFoo</code> if the field is called <code>foo</code> (or <code>isFoo</code>
+		if the field's type is <code>boolean</code>). A default setter is named <code>setFoo</code> if the field is called <code>foo</code>, returns <code>void</code>,
+		and takes 1 parameter of the same type as the field. It simply sets the field to this value.
+		</p><p>
+		The generated getter/setter method will be <code>public</code> unless you explicitly specify an <code>AccessLevel</code>, as shown in the example below.
+		Legal access levels are <code>PUBLIC</code>, <code>PROTECTED</code>, <code>PACKAGE</code>, and <code>PRIVATE</code>.
+		</p><p>
+		You can also put a <code>@Getter</code> and/or <code>@Setter</code> annotation on a class. In that case, it's as if you annotate all the non-static fields in that
+		class with the annotation.
+		</p><p>
+		You can always manually disable getter/setter generation for any field by using the special <code>AccessLevel.NONE</code> access level. This lets you override the
+		behaviour of a <code>@Getter</code>, <code>@Setter</code> or <code>@Data</code> annotation on a class.
+		</p>
+	</div>
+	<div class="snippets">
+		<div class="pre">
+			<h3>With Lombok</h3>
+			<div class="snippet">@HTML_PRE@</div>
+		</div>
+		<div class="sep"></div>
+		<div class="post">
+			<h3>Vanilla Java</h3>
+			<div class="snippet">@HTML_POST@</div>
+		</div>
+	</div>
+	<div style="clear: left;"></div>
+	<div class="overview">
+		<h3>Small print</h3><div class="smallprint">
+			<p>
+			For generating the method names, the first character of the field, if it is a lowercase character, is title-cased, otherwise, it is left unmodified.
+			Then, get/set/is is prefixed.
+			</p><p>
+			No method is generated if any method already exists with the same name, even if the parameter list is different. For example, <code>getFoo()</code>
+			will not be generated if there's already a method <code>getFoo(int x)</code> even though it is technically possible to make the method. This caveat
+			exists to prevent confusion. If the generation of a method is skipped for this reason, a warning is emitted instead.
+			</p><p>
+			For <code>boolean</code> fields that start with <code>is</code> or <code>has</code> immediately followed by a title-case letter, nothing is prefixed
+			to generate the getter name.
+			</p><p>
+			Any variation on <code>boolean</code> will <em>not</em> result in using the <code>is</code> prefix instead of the <code>get</code> prefix; for example,
+			returning <code>java.lang.Boolean</code> results in a <code>get</code> prefix, not an <code>is</code> prefix.
+			</p><p>
+			Any annotations named <code>@NonNull</code> (case insensitive) on the field are interpreted as: This field must not ever hold
+			<em>null</em>. Therefore, these annotations result in an explicit null check in the generated setter. Also, these
+			annotations (as well as any annotation named <code>@Nullable</code> or <code>@CheckForNull</code>) are copied to setter parameter and getter method.
+			</p><p>
+			You can annotate a class with a <code>@Getter</code> or <code>@Setter</code> annotation. Doing so is equivalent to annotating all non-static fields
+			in that class with that annotation. <code>@Getter</code>/<code>@Setter</code> annotations on fields take precedence over the ones on classes.
+			</p><p>
+			Using the <code>AccessLevel.NONE</code> access level simply generates nothing. It's useful only in combination with
+			<a href="Data.html"><code>@Data</code></a> or a class-wide <code>@Getter</code> or <code>@Setter</code>.
+			</p><p>
+				<code>@Getter</code> can also be used on enums. <code>@Setter</code> can't, not for a technical reason, but
+				for a pragmatic one: Setters on enums are an extremely bad idea.
+			</p>
+		</div>
+	</div>
+</div>
+<div class="endBar">
+	<a href="javascript: loadHtml('content', 'block/video.htm');">Home</a>  | 
+	<a href="javascript: loadHtml('content', 'block/features/index.htm');">Back to features</a> | <span class="disabled">Previous feature</span> | <a href="javascript: loadHtml('content', 'block/features/GetterLazy.htm')">Next feature (@Getter(lazy=true))</a>
+</div>

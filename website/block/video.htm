@@ -1,0 +1,47 @@
+<div class="meat">
+	<div class="video">
+		<video width="800" height="480" poster="image/poster.png" controls="controls" preload="none">
+			<source src="video/lombok.ogv" type="video/ogg" />
+			<source src="video/lombok.mp4" type="video/mp4" />
+			<source src="video/lombok-iPhone.m4v" type="video/mp4" />
+			<object id="player" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="800" height="500">
+				<param name="movie" value="video/player.swf?image=poster.png&amp;file=lombok.mp4" />
+				<param name="allowfullscreen" value="true" />
+				<!--[if !IE]>-->
+				<object width="800" height="480" type="application/x-shockwave-flash"
+					data="video/player.swf?image=poster.png&amp;file=lombok.mp4" allowfullscreen="true">
+				<!--<![endif]-->
+				<!--[if gt IE 6]>
+					<object width="800" height="500" classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B">
+						<param name="src" value="video/lombok.mp4" />
+						<param name="autoplay" value="false" />
+						<param name="showlogo" value="false" /><!
+				[endif]-->
+				<!--[if !IE]>-->
+					<object width="800" height="480" type="video/quicktime" data="video/lombok.mp4">
+						<param name="src" value="video/lombok.mp4" />
+						<param name="autoplay" value="false" />
+						<param name="showlogo" value="false" />
+				<!--<![endif]-->
+						<h3>Video: Lombok Demo</h3>
+						<p>
+							<strong>No video playback capabilities detected.</strong>
+							Why not download it instead?<br />
+							<a href="video/lombok.mov">MPEG4 / H.264 (Windows / Mac)</a> |
+							<a href="video/lombok.ogv">Ogg Theora &amp; Vorbis ".ogv" (Linux)</a>
+						</p><p>
+							To play the video in the webpage, please do one of the following:
+						</p><ul>
+							<li>Upgrade to <a href="http://getfirefox.com/">Firefox 3.5</a>,
+								<a href="http://apple.com/safari">Safari 4</a> or
+								<a href="http://www.google.com/chrome/">Chrome 2</a></li>
+								<li>Install <a href="http://get.adobe.com/flashplayer/">Adobe Flash</a></li>
+								<li>Install <a href="http://apple.com/quicktime/download/">QuickTime</a></li>
+						</ul>
+				</object></object></object></object>
+		</video>
+	</div>
+</div>
+<div class="endBar">
+	<a href="javascript: loadHtml('content', 'block/novideo.htm');">I can't see the video</a> | <a href="javascript: loadHtml('content', 'block/slideshow.htm');">I don't want to see the video - show me a slideshow instead!</a>
+</div>

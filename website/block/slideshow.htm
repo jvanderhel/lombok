@@ -1,0 +1,60 @@
+<div class="meat">
+	<div class="slideshow">
+		<h1>Slideshow</h1>
+		<div class="para">
+			Imagine you have a very simple class:
+		</div>
+		<div class="snippet">public class Mountain {
+	private final String name;
+	private final double latitude, longitude;
+	private String country;
+	}</div>
+		<p>
+			While that is fairly clear, that class is not complete. In fact, it won't compile like that.<br />
+			You'll need to add a constructor to initialize those final fields, you probably want getters, a setter for <code>country</code>,
+			and to be complete, a nice <code>toString</code> as well as an implementation for <code>equals</code> and <code>hashCode</code>.
+			Eclipse can generate all these methods for you, but then you end up with over 70 lines of boilerplate. It's going to be hard
+			to see any surprises buried amongst all those lines of code! Lombok has the answer to this problem.
+		</p>
+		<p>
+			So instead of this mess:
+			<img class="screenshot" src="image/eclipse-generate.png" />
+			lombok simply offers you an annotation that tells eclipse to generate all this stuff for us silently, without
+			cluttering up your source file, like so:
+			<img class="screenshot" src="image/eclipse-lombok.png" />
+		</p>
+		<p>
+			Note how we haven't even saved the file yet, but in the outline view you can already see all the various methods generated
+			by the <code>@Data</code> annotation. That's because lombok is completely integrated into eclipse. The moment you type
+			the last character of your annotation, all the methods exist, just as if you write the last character on a method declaration.
+			In other words, lombok is <em>not</em> just an annotation processor!
+		</p>
+		<p>
+			But what about your build process? Lombok works just as well in <strong>javac</strong>. All you need to do is add
+			<code>lombok.jar</code> to the class path as you compile. Like so:
+			<img class="screenshot" src="image/javac.png" />
+		</p>
+		<p>
+			<code>@Data</code> is nice, but its certainly not the only boilerplate buster that lombok has to offer. If you need
+			more fine grained control, there's <code>@Getter</code> and <code>@Setter</code>, and to help you in correctly
+			cleaning up your resources, <code>@Cleanup</code> can automatically and without cluttering your source files generate
+			try/finally blocks to safely call <code>close()</code> on your resource objects. That's not all, but for the complete
+			list you'll need to head over to the <a href="javascript: loadHtml('content', 'block/features/index.htm');">feature overview</a>.
+		</p>
+		<p>
+			Ready to install lombok? Start by clicking the download button at the top of this page. Going from clicking that button
+			to having your eclipse ready to go takes less than 12 seconds - it's that simple.
+		</p>
+		<p>
+			Thanks for checking out Project Lombok, and let us know what you think!
+		</p>
+		<p>
+			If you'd like to read more, check out
+			<a href="http://jnb.ociweb.com/jnb/jnbJan2010.html">Reducing boilerplate code with Project Lombok</a>
+			written by Michael Kimberlin.
+		</p>
+	</div>
+</div>
+<div class="endBar">
+	<a href="javascript: loadHtml('content', 'block/video.htm');">I changed my mind - I do want to see the video!</a>
+</div>
